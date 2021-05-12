@@ -26,26 +26,30 @@ int main(int argc, char **argv)
     //Tracks if we are in the parent or child process
     int pid = 1;
     unsigned short int opcode = 0;
-    //unsigned short int *opcode_ptr;
+
     setvbuf(stdout, NULL, _IONBF, 0);
+
     //Variables to hold the start and end of our range of usable ports
     int start_port = 0;
     int end_port = 0;
+
     //Points to filenames to be sent to/receieved from users
     char *filename = NULL;
     FILE *file = NULL;
+
     //Variables for use in creating packets to send to clients
     int num, attempts = 0;
+
     //Get the user provided start and end port numbers from the command line
     if (argv[1] != NULL)
     {
         start_port = atoi(argv[1]);
     }
-
     if (argv[2] != NULL)
     {
         end_port = atoi(argv[2]);
     }
+
     //Start on the user-provided start port
     int current_port = start_port;
 
@@ -236,7 +240,6 @@ int main(int argc, char **argv)
                         }
                     }
                 }
-                //exit(1);
             }
         }
         else if (opcode == 2)
@@ -253,6 +256,7 @@ int main(int argc, char **argv)
                 server.sin_port = htons(new_tid);
                 len = sizeof(server);
                 bind(udp_sd, (struct sockaddr *)&server, len);
+
                 //WRQ
                 //Check if file already exists
                 printf("WRQ received on port %d\n", current_port);
@@ -263,8 +267,6 @@ int main(int argc, char **argv)
                     //File already exists, send an ERROR packet
                     sendBuffer = (char *)malloc(5 + (sizeof(char) * strlen("Error: File already exists\n")));
                     bzero(sendBuffer, MAXBUFFER);
-                    //sendBuffer[0] = htons((unsigned short)5);
-                    //sendBuffer[2] = htons((unsigned short)6); //Error code for 'File already exists'
                     sendBuffer[0] = (((5) >> 8));
                     sendBuffer[1] = (5);
                     sendBuffer[2] = (((6) >> 8));
@@ -277,6 +279,7 @@ int main(int argc, char **argv)
                     }
                     exit(1);
                 }
+
                 //Create a new file with the provided name
                 file = fopen(filename, "w");
                 //Begin writing to file
@@ -288,8 +291,6 @@ int main(int argc, char **argv)
                 //Send an ACK with a block number of 0
                 sendBuffer = (char *)malloc(516);
                 bzero(sendBuffer, MAXBUFFER);
-                //sendBuffer[0] = htons((unsigned short int)4); //Bitmasking opcode, modeled after a line from http://www.cse.fau.edu/~roy/cda4500.03s/project/tftp_client.c
-                //sendBuffer[2] = htons((unsigned short int)0);
                 sendBuffer[0] = (((4) >> 8));
                 sendBuffer[1] = (4);
                 sendBuffer[2] = (((0) >> 8));
